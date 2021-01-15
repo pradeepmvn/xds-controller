@@ -59,12 +59,22 @@ export GRPC_XDS_BOOTSTRAP=/path/to/bootstrap.json
 }
 ```
 ## Configuration
-| Configuration | #1 | #2 | #3 | #4 | #5 | #6 | #7 | #8 | #9 | #10 | #11 | #12 |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Seconds | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 | 269 | 254 |
-## Example Usage
-See examples directory for usage examples.
+| Configuration | Details |
+|---|---|
+| node_id | String to be used when creating snapshot in the cache. This has to be referenced in client Bootstrap file | 
+| log_debug | Enable debug logs  true|false | 
+| listner_port | Port on which the xds-controller has to run | 
+| max_concurrent_streams | Streams to grpc clients per container/pod | 
+| clusters. name| Unique name of the lcuster across others | 
+| clusters. resolver_type| Currenlty supported types include k8 and dns | 
+| clusters. address| address which is to be resoved. either a dns o a k8 service name | 
+| clusters. name_space| name space to filter k8 resources. Used only for k8 resolver | 
+| clusters. port| Port on which the service runs | 
+| clusters. refresh_interval_in_sec| Refresh time for Endpoints. Only used for DNS type | 
+| clusters. lb_policy| Envoy supported load balancer policies such as ROUND_ROBIN ,LEAST_REQUEST | 
 
+## Example Usage
+See [Example](https://github.com/pradeepmvn/xds-controller/tree/main/example) directory for usage.
 
 ## References
 Great projects that helped to shape it up. A big thanks for these repos.
