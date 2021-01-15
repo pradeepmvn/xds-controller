@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package hello;
+option go_package = "github.com/pradeepmvn/xds-controller/example";
+
+service Person {
+  rpc GetDetails(PersonRequest)  returns (PersonResponse) {}
+}
+
+message PersonRequest {
+// empty
+}
+
+message PersonResponse {
+  string name = 1;
+  int32 id = 2; 
+}

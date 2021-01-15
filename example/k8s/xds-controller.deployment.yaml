@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xds-controller-deployment
+  labels:
+    app: xds-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xds-controller
+  template:
+    metadata:
+      labels:
+        app: xds-controller
+    spec:
+      containers:
+        - name: xds-controller
+          env:
+            - name: "GRPC_GO_LOG_SEVERITY_LEVEL"
+              value: info
+            - name: "GRPC_GO_LOG_VERBOSITY_LEVEL"
+              value: "99"
+          image: xds.example/xds-controller:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+              name: grpc-port
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 1
+              memory: 1G
+            limits:
+              cpu: 1
+              memory: 1G
+          volumeMounts:
+            - name: controller-config
+              mountPath: /config
+      volumes:
+        - name: controller-config
+          configMap:
+            name: xds-controller-config-map-ceww4rfgfy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    note: xds-controller
+  name: xds-controller
+spec:
+  ports:
+    - name: grpc-port
+      port: 8080
+      protocol: TCP
+      targetPort: grpc-port
+  selector:
+    app: xds-controller
+  clusterIP: None
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    note: xds-controller-config-map
+  name: xds-controller-config-map-ceww4rfgfy
+data:
+  GRPC_XDS_EXPERIMENTAL_V3_SUPPORT: "true"
+  config.yaml: |
+    node_id: THIS_IS_THE_SNAPSHOT_ID_THAT_MATCHES_TO_XDS_CONTROLLER
+    log_debug: true
+    listner_port: 8080
+    max_concurrent_streams: 1000
+    refresh_interval_in_sec: 5
+    clusters:
+      - name: grpc-server-cdsf
+        resolver_type: k8
+        address: server
+        name_space: xds-test
+        port: 8080
+        lb_policy: ROUND_ROBIN

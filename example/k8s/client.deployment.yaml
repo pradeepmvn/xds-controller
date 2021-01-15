@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+  labels:
+    app: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          env:
+            - name: SERVER_URL
+              value: "xds:///grpc-server-cdsf-listener"
+            - name: SLEEP_TIME
+              value: "1"
+            - name: TOTAL_RUN_TIME
+              value: "60"
+            - name: GRPC_XDS_EXPERIMENTAL_V3_SUPPORT
+              value: "true"
+            - name: "GRPC_XDS_BOOTSTRAP"
+              value: "/etc/xds/XDS_FILE"
+            - name: "GRPC_GO_LOG_SEVERITY_LEVEL"
+              value: info
+            - name: "GRPC_GO_LOG_VERBOSITY_LEVEL"
+              value: "99"
+          image: xds.example/client:latest
+          imagePullPolicy: Never
+          resources:
+            requests:
+              cpu: 1
+              memory: 1G
+            limits:
+              cpu: 1
+              memory: 1G
+          volumeMounts:
+            - name: xdsconfig
+              mountPath: /etc/xds
+      volumes:
+        - name: xdsconfig
+          configMap:
+            name: client-config-map-deqw34rfgert
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    note: client-config-map
+  name: client-config-map-deqw34rfgert
+data:
+  XDS_FILE: |
+    {
+      "xds_servers": [
+        {
+          "server_uri": "dns:///xds-controller.xds-test.svc.cluster.local:8080",
+          "channel_creds": [
+            {
+              "type": "insecure"
+            }
+          ]
+        }
+      ],
+      "server_features": [
+        "xds_v3"
+      ],
+      "node": {
+        "id": "THIS_IS_THE_SNAPSHOT_ID_THAT_MATCHES_TO_XDS_CONTROLLER"
+      },
+      "grpc_server_resource_name_id": "grpc/server"
+    }

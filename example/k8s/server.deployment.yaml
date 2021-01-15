@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+  labels:
+    app: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - name: server
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+          image: xds.example/server:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+              name: grpc-port
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 1
+              memory: 1G
+            limits:
+              cpu: 1
+              memory: 1G
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    note: server
+  name: server
+spec:
+  ports:
+    - name: grpc-port
+      port: 8080
+      protocol: TCP
+      targetPort: grpc-port
+  selector:
+    app: server
+  clusterIP: None

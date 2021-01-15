@@ -1,0 +1,26 @@
+# node_id should match to the one used in bootstrap config on xds client side. All resources in snapshot will be tied to this nodeid
+node_id: xds-controller-parent-node-id
+# uses std golang log pkg. Defult is info + error. Enable debug for more messages
+# true|false
+log_debug: true
+# Management server listener port
+listner_port: 8080
+# max streams for control plane grpc server
+max_concurrent_streams: 10000
+clusters:
+  # name will also be used for clustername & node id as xds resource
+  # append `-listener` to this value at the end for service discovery
+  - name: grpc-server-adevfrv
+    # type of resolver. Supported types: dns | k8
+    resolver_type: k8
+    # if its dns, the entire dns to be resolved
+    # if its a K8, the service name
+    address: grpc-server
+    #name space where the service is deployed.(only applicable for k8 resolution)
+    name_space: xds-test
+    # port on which the services are running.
+    port: 8080
+    # time to refresh snapshots. Only applied for dns refresh
+    refresh_interval_in_sec: 60
+    # default is round robin. envoy lb_policy values
+    lb_policy: ROUND_ROBIN
