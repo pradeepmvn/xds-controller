@@ -29,9 +29,11 @@ docker build -t xds.example/server --build-arg TYPE=server .
 
 ```
 ### Deploy
+```
 kubectl apply -f example/k8s/xds-controller.deployment.yaml -n xds-test
 kubectl apply -f example/k8s/server.deployment.yaml -n xds-test
 kubectl apply -f example/k8s/client.deployment.yaml -n xds-test
+```
 
 ## Test
 Scale up and scaledown server pods and client should get notifications on changes and new pods should start getting

@@ -1,7 +1,6 @@
 package resolver
 
-// A Generic Type Reolver that retiroves enfpoints and exposes channels for refreshing them
-
+// A Generic Type Resolver that retrieves enfdpoints and exposes channels for refreshing them
 type Resolver interface {
 	GetEndPoints() []string
 	Watch()
