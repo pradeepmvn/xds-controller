@@ -1,16 +1,20 @@
 # xds-controller
+[![Go Report Card](https://goreportcard.com/badge/github.com/pradeepmvn/xds-controller)](https://goreportcard.com/report/github.com/pradeepmvn/xds-controller)
 
-A general purpose control-plane to provide endpoints for grpc clients. Also well known as `Lookaside Loadbalance` implementation via Envoy xDS API. This can be deployed directly in a container with provided cluster configurations and grpc clients can connect to it for look aside loadbalancing. This repo is specific to create EDS.. which is general pupose need for microservices and deployment with in a kubernates cluster.
+A general purpose control-plane to provide endpoints for grpc clients. Also well known as `Lookaside Loadbalance` implementation via Envoy xDS API. This can be deployed directly in a container with provided cluster configurations and grpc clients can connect to it for look aside loadbalancing. This repo is specific to create EDS.. which is general pupose need for microservices and deployment with in a kubernates cluster. It is built using the envoy [go-control-plane](https://github.com/envoyproxy/go-control-plane) itself.
 
 
-Features:
+## Features:
 1. v3 Envoy resources & API support
 2. Multiple Resolvers
-  - dns : A dns service with A records that can be used to LB requests
-  - k8 (Kubernates): A list of ips for a headless k8 service deployment
+    -  dns : A dns service with A records that can be used to LB requests
+    -  k8 (Kubernates): A list of ips for a headless k8 service deployment
 3. Ability to identity delta between snapshot and only send if there is a change.
 4. Plugged in to k8 watch and detect changes with k8 endpoints
+5. Mix and match resolvers for cluster. For ex: a node can have 1 dns resolver and 1 k8 resolver
 
+## High level Overview
+![overview](img/xds-controller.png)
 
 ## What is xDS
  - xDS is the protocol initially used by Envoy, that is evolving into a universal data plan API for service mesh.
@@ -77,7 +81,7 @@ export GRPC_XDS_BOOTSTRAP=/path/to/bootstrap.json
 See [Example](https://github.com/pradeepmvn/xds-controller/tree/main/example) directory for usage.
 
 ## References
-Great projects that helped to shape it up. A big thanks for these repos.
+Great projects that helped to shape it up. A big thanks for these repos. Some of these are very useful informational blogs to describe how connectivities are happening.
 
 - https://github.com/envoyproxy/go-control-plane
 - https://github.com/grpc/grpc-go/blob/master/examples/features/xds/README.md

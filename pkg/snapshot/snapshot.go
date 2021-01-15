@@ -171,7 +171,7 @@ func (sn *snapshot) generate() {
 	log.Debug.Printf("Snapshot added to cache %s", xdsSn)
 }
 
-// Close resolver and related componenets
+// Close resolver and related components
 func (sn *snapshot) Close() {
 	sn.m.Lock()
 	defer sn.m.Unlock()

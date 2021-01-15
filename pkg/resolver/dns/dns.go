@@ -39,7 +39,7 @@ func (d *Dnsr) GetEndPoints() []string {
 	return d.latest
 }
 
-// `A` records in the dns should be the same order and comparision can be as simple as `==`
+// `A` records in the dns should be the same order and comparison can be as simple as `==`
 // Watch updates latest on dnsr and triggers a bool chan for refresh.
 func (d *Dnsr) Watch() {
 watcher:

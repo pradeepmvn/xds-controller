@@ -20,7 +20,7 @@ func TestGetEndPoints(t *testing.T) {
 	}
 	r := dns.New(cc)
 	d := r.GetEndPoints()
-	fmt.Println("Inital List", d)
+	fmt.Println("Initial List", d)
 
 }
 
@@ -35,15 +35,15 @@ func TestWatcher(t *testing.T) {
 	r := dns.New(cc)
 	d := r.GetEndPoints()
 
-	fmt.Println("Inital List", d)
+	fmt.Println("Initial List", d)
 
 	go func(r resolver.Resolver) {
 		//kill after 5 sec
-		time.Sleep(5 * time.Second)s
+		time.Sleep(5 * time.Second)
 		r.Close()
 		fmt.Println("Stopping")
 	}(r)
-	// recieve refreshes
+	// receive refreshes
 	go func(r resolver.Resolver) {
 		for range r.Refresh() {
 			fmt.Println("New List", r.Latest())

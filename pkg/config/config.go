@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// LoadConfig initalizes and parses yaml fileinto struct
+// LoadConfig initializes and parses yaml fileinto struct
 func LoadConfig() *ControllerConfig {
 	cc := &ControllerConfig{}
 	yamlFile, err := ioutil.ReadFile("/config/config.yaml")

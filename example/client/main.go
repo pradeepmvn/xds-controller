@@ -17,7 +17,7 @@ func main() {
 	server := getEnv("SERVER_URL", "localhost:5432")
 	sleepTime, _ := strconv.Atoi(getEnv("SLEEP_TIME", "1"))
 	runTime, _ := strconv.Atoi(getEnv("TOTAL_RUN_TIME", "60"))
-	// start conenction
+	// start connection
 	log.Printf("Establishing connection to : %s", server)
 	conn, err := grpc.Dial(server, grpc.WithInsecure())
 	if err != nil {
