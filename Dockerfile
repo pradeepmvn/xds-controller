@@ -1,10 +1,13 @@
 FROM golang:1.15.6 as build
-WORKDIR /app
+WORKDIR /app/src
 COPY . .
-RUN go build -o main ./cmd
+ENV CGO_ENABLED=0
+RUN go build -o /app/main ./cmd
 
 FROM scratch
 # grpc server and prometheus
 EXPOSE 8080 8082
-COPY --from=build /app/main /
-ENTRYPOINT [ "/app/main" ]
+COPY --from=build /app/main /main
+COPY --from=build /app/src/config/config.yaml /config/config.yaml
+WORKDIR /
+ENTRYPOINT [ "/main" ]
