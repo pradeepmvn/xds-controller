@@ -32,13 +32,13 @@ func main() {
 		if err != nil {
 			log.Fatalf("could not get details: %v", err)
 		}
-		log.Printf("Name: %s", r.GetName())
+		log.Printf("Got Name: %s from Server: %d", r.GetName(), r.GetId())
 		time.Sleep(time.Duration(sleepTime) * time.Second)
 		if time.Now().Sub(now) >= time.Duration(time.Duration(runTime)*time.Minute) {
 			break
 		}
 	}
-	log.Printf("Completed cycle of %s sec. Killing the server", runTime)
+	log.Printf("Completed cycle of %v sec. Killing the server", runTime)
 }
 
 func getEnv(key, defaultVal string) string {

@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
 	"net"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/Pallinder/sillyname-go"
 	personpb "github.com/pradeepmvn/xds-controller/example/proto"
@@ -16,6 +19,11 @@ type server struct {
 	personpb.UnimplementedPersonServer
 }
 
+var (
+	seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+	serverID   int32
+)
+
 func main() {
 	// get Env variables
 	serverPort := getEnv("SERVER_PORT", "5432")
@@ -23,6 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	serverID = randNum(3)
 	s := grpc.NewServer()
 	personpb.RegisterPersonServer(s, &server{})
 	log.Println(" Server Started !!")
@@ -32,8 +41,8 @@ func main() {
 }
 
 func (s *server) GetDetails(ctx context.Context, in *personpb.PersonRequest) (*personpb.PersonResponse, error) {
-	log.Println(" Response sent!!")
-	return &personpb.PersonResponse{Name: sillyname.GenerateStupidName()}, nil
+	log.Println("Served Request from Server: ", serverID)
+	return &personpb.PersonResponse{Name: sillyname.GenerateStupidName(), Id: serverID}, nil
 }
 
 func getEnv(key, defaultVal string) string {
@@ -42,4 +51,14 @@ func getEnv(key, defaultVal string) string {
 		return defaultVal
 	}
 	return v
+}
+
+// 9 for ssn
+func randNum(length int) int32 {
+	var b string
+	for i := 0; i < length; i++ {
+		b = b + strconv.Itoa(seededRand.Intn(length))
+	}
+	r, _ := strconv.Atoi(b)
+	return int32(r)
 }

@@ -30,7 +30,8 @@ type ControllerConfig struct {
 	NodeId               string     `yaml:"node_id"`
 	LogDebug             bool       `yaml:"log_debug"`
 	MaxConcurrentStreams int        `yaml:"max_concurrent_streams"`
-	ListnerPort          int        `yaml:"listner_port"`
+	ListenerPort         int        `yaml:"listener_port"`
+	PrometheusPort       int        `yaml:"prometheus_port"`
 	Clusters             []*Cluster `yaml:"clusters"`
 }
 

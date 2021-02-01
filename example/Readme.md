@@ -23,9 +23,8 @@ To run example on a local cluster.,
 ### Build
 ```bash
 docker build -t xds.example/xds-controller .
-cd example
-docker build -t xds.example/client --build-arg TYPE=client .
-docker build -t xds.example/server --build-arg TYPE=server .
+docker build -t xds.example/client -f example/Dockerfile --build-arg TYPE=client example
+docker build -t xds.example/server -f example/Dockerfile --build-arg TYPE=server example
 
 ```
 ### Deploy

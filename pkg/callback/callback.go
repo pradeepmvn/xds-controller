@@ -3,56 +3,68 @@ package callback
 
 import (
 	"context"
-	"log"
+	"github.com/pradeepmvn/xds-controller/pkg/log"
 	"sync"
 
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
+// go-control-plane defines standard interface for  callback mechanism, which can be used to record and expose metrics out of the xDS requests.
+// GRPC SoTW (State of The World) part of XDS server functions below.. (Rest functions are not implemented)
+// OnStreamOpen, OnStreamClosed
+//OnStreamRequest, OnStreamResponse
+
 type Callbacks struct {
-	Signal   chan struct{}
-	Debug    bool
-	Fetches  int
-	Requests int
-	mu       sync.Mutex
+	//Stream counters
+	ActiveStrms *prometheus.Gauge
+	ReqC        *prometheus.Counter
+	ResC        *prometheus.Counter
+	// mux for incrementing counters
+	mu sync.Mutex
 }
 
-func (cb *Callbacks) Report() {
-	cb.mu.Lock()
-	defer cb.mu.Unlock()
-	log.Printf("server callbacks fetches=%d requests=%d\n", cb.Fetches, cb.Requests)
-}
+// OnStreamOpen is called once an xDS stream is open with a stream ID and the type URL (or "" for ADS).
+// Returning an error will end processing and close the stream. OnStreamClosed will still be called.
 func (cb *Callbacks) OnStreamOpen(_ context.Context, id int64, typ string) error {
-	if cb.Debug {
-		log.Printf("stream %d open for %s\n", id, typ)
-	}
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	(*cb.ActiveStrms).Inc()
+	log.Debug.Printf("Callback: Stream open for  id: %d open for type: %s", id, typ)
 	return nil
 }
+
+// OnStreamClosed is called immediately prior to closing an xDS stream with a stream ID.
 func (cb *Callbacks) OnStreamClosed(id int64) {
-	if cb.Debug {
-		log.Printf("stream %d closed\n", id)
-	}
-}
-func (cb *Callbacks) OnStreamRequest(int64, *discovery.DiscoveryRequest) error {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.Requests++
-	if cb.Signal != nil {
-		close(cb.Signal)
-		cb.Signal = nil
-	}
-	return nil
+	(*cb.ActiveStrms).Dec()
+	log.Debug.Printf("Callback: Stream Closed for  id: %d", id)
 }
-func (cb *Callbacks) OnStreamResponse(int64, *discovery.DiscoveryRequest, *discovery.DiscoveryResponse) {
-}
-func (cb *Callbacks) OnFetchRequest(_ context.Context, req *discovery.DiscoveryRequest) error {
+
+// OnStreamRequest is called once a request is received on a stream.
+// Returning an error will end processing and close the stream. OnStreamClosed will still be called.
+func (cb *Callbacks) OnStreamRequest(a int64, d *discovery.DiscoveryRequest) error {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.Fetches++
-	if cb.Signal != nil {
-		close(cb.Signal)
-		cb.Signal = nil
-	}
+	(*cb.ReqC).Inc()
+	log.Debug.Println("Callback: Stream Request", d)
 	return nil
 }
-func (cb *Callbacks) OnFetchResponse(*discovery.DiscoveryRequest, *discovery.DiscoveryResponse) {}
+
+// OnStreamResponse is called immediately prior to sending a response on a stream.
+func (cb *Callbacks) OnStreamResponse(a int64, req *discovery.DiscoveryRequest, d *discovery.DiscoveryResponse) {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	(*cb.ResC).Inc()
+	log.Debug.Println("Callback: Stream Response", d)
+}
+
+// OnFetchRequest Marker Impl: No expecting Rest Client
+func (cb *Callbacks) OnFetchRequest(ctx context.Context, req *discovery.DiscoveryRequest) error {
+	return nil
+}
+
+// OnFetchResponse Marker Impl: No expecting Rest Client
+func (cb *Callbacks) OnFetchResponse(req *discovery.DiscoveryRequest, resp *discovery.DiscoveryResponse) {
+}

@@ -4,7 +4,9 @@ node_id: xds-controller-parent-node-id
 # true|false
 log_debug: true
 # Management server listener port
-listner_port: 8080
+listener_port: 8080
+# Prometheus metrics listener port
+prometheus_port: 8082
 # max streams for control plane grpc server
 max_concurrent_streams: 10000
 clusters:
@@ -12,15 +14,15 @@ clusters:
   # append `-listener` to this value at the end for service discovery
   - name: grpc-server-adevfrv
     # type of resolver. Supported types: dns | k8
-    resolver_type: k8
+    resolver_type: dns
     # if its dns, the entire dns to be resolved
     # if its a K8, the service name
-    address: grpc-server
+    address: google.com
     #name space where the service is deployed.(only applicable for k8 resolution)
     name_space: xds-test
     # port on which the services are running.
     port: 8080
     # time to refresh snapshots. Only applied for dns refresh
-    refresh_interval_in_sec: 60
+    refresh_interval_in_sec: 5
     # default is round robin. envoy lb_policy values
     lb_policy: ROUND_ROBIN
