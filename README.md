@@ -89,7 +89,15 @@ The [example](https://github.com/pradeepmvn/xds-controller/tree/main/example) re
 | clusters. refresh_interval_in_sec| Refresh time for Endpoints. Only used for DNS type | 
 | clusters. lb_policy| Envoy supported load balancer policies such as ROUND_ROBIN ,LEAST_REQUEST | 
 
-## Example Usage
+##  Usage
+### Simple Usage
+You can run the controller with a dns such as google.com which is also configured in the config.yaml. You can build a local docker image and run it with below steps
+```
+docker build -t xds.example/xds-controller .
+docker run xds.example/xds-controller:latest
+```
+
+### Comprehensive k8 usage
 See [Example](https://github.com/pradeepmvn/xds-controller/tree/main/example) directory for usage.
 
 ## References
