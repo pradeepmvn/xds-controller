@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	controlplane "github.com/envoyproxy/go-control-plane/pkg/server/v3"
@@ -30,9 +31,21 @@ func main() {
 	defer sn.Close()
 	go sn.StartRefresher()
 
-	// Run the xDS server
+	// Configure  the xDS server
 	ctx := context.Background()
 	cb := &callback.Callbacks{}
 	srv := controlplane.NewServer(ctx, cache, cb)
+
+	// log metrics every sec on debug
+	if cfg.LogDebug {
+		go func(cb *callback.Callbacks) {
+			for {
+				cb.Log()
+				time.Sleep(1 * time.Second)
+			}
+		}(cb)
+	}
+
+	// Run xDS server
 	server.RunControlPlaneServer(ctx, srv, cfg)
 }
