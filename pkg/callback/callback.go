@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // go-control-plane defines standard interface for  callback mechanism, which can be used to record and expose metrics out of the xDS requests.
@@ -16,18 +17,11 @@ import (
 
 type Callbacks struct {
 	//Stream counters
-	ActiveStreams int
-	ReqC          int
-	ResC          int
+	ActiveStrms *prometheus.Gauge
+	ReqC        *prometheus.Counter
+	ResC        *prometheus.Counter
 	// mux for incrementing counters
 	mu sync.Mutex
-}
-
-// Log logs the detail about current counters of xDS Controller
-func (cb *Callbacks) Log() {
-	cb.mu.Lock()
-	defer cb.mu.Unlock()
-	log.Info.Printf("Callback:  active_streams=%d total_requests: %d total_responses: %d", cb.ActiveStreams, cb.ReqC, cb.ResC)
 }
 
 // OnStreamOpen is called once an xDS stream is open with a stream ID and the type URL (or "" for ADS).
@@ -35,7 +29,7 @@ func (cb *Callbacks) Log() {
 func (cb *Callbacks) OnStreamOpen(_ context.Context, id int64, typ string) error {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.ActiveStreams++
+	(*cb.ActiveStrms).Inc()
 	log.Debug.Printf("Callback: Stream open for  id: %d open for type: %s", id, typ)
 	return nil
 }
@@ -44,7 +38,7 @@ func (cb *Callbacks) OnStreamOpen(_ context.Context, id int64, typ string) error
 func (cb *Callbacks) OnStreamClosed(id int64) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.ActiveStreams--
+	(*cb.ActiveStrms).Dec()
 	log.Debug.Printf("Callback: Stream Closed for  id: %d", id)
 }
 
@@ -53,7 +47,7 @@ func (cb *Callbacks) OnStreamClosed(id int64) {
 func (cb *Callbacks) OnStreamRequest(a int64, d *discovery.DiscoveryRequest) error {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.ReqC++
+	(*cb.ReqC).Inc()
 	log.Debug.Println("Callback: Stream Request", d)
 	return nil
 }
@@ -62,7 +56,7 @@ func (cb *Callbacks) OnStreamRequest(a int64, d *discovery.DiscoveryRequest) err
 func (cb *Callbacks) OnStreamResponse(a int64, req *discovery.DiscoveryRequest, d *discovery.DiscoveryResponse) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.ResC++
+	(*cb.ResC).Inc()
 	log.Debug.Println("Callback: Stream Response", d)
 }
 

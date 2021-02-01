@@ -4,7 +4,9 @@ node_id: xds-controller-parent-node-id
 # true|false
 log_debug: true
 # Management server listener port
-listner_port: 8080
+listener_port: 8080
+# Prometheus metrics listener port
+prometheus_port: 8082
 # max streams for control plane grpc server
 max_concurrent_streams: 10000
 clusters:

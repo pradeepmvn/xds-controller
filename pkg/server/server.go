@@ -22,7 +22,7 @@ import (
 	"github.com/pradeepmvn/xds-controller/pkg/log"
 )
 
-// RunServer starts an xDS server at the given port.
+// RunControlPlaneServer starts an xDS server at the given port.
 func RunControlPlaneServer(ctx context.Context, srv3 serverv3.Server, cfg *config.ControllerConfig) {
 	// gRPC golang library sets a very small upper bound for the number gRPC/h2
 	// streams over a single TCP connection. If a proxy multiplexes requests over
@@ -32,12 +32,12 @@ func RunControlPlaneServer(ctx context.Context, srv3 serverv3.Server, cfg *confi
 	grpcOptions = append(grpcOptions, grpc.MaxConcurrentStreams(uint32(cfg.MaxConcurrentStreams)))
 	grpcServer := grpc.NewServer(grpcOptions...)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.ListnerPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.ListenerPort))
 	if err != nil {
 		log.Error.Panic(err)
 	}
 	registerServer(grpcServer, srv3)
-	log.Info.Printf("Control plane Management server Started!! listening on %d\n", cfg.ListnerPort)
+	log.Info.Printf("Control plane Management server Started!! listening on %d\n", cfg.ListenerPort)
 	if err = grpcServer.Serve(lis); err != nil {
 		log.Error.Panic(err)
 	}

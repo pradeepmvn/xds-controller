@@ -27,6 +27,7 @@ spec:
             - containerPort: 8080
               name: grpc-port
               protocol: TCP
+            - containerPort: 8082
           resources:
             requests:
               cpu: 1
@@ -57,7 +58,20 @@ spec:
   selector:
     app: xds-controller
   clusterIP: None
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    note: xds-controller-prom
+  name: xds-controller-prom
+spec:
+  ports:
+  - name: prom
+    port: 8082
+    targetPort: 8082
+  selector:
+    app: xds-controller
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -70,7 +84,8 @@ data:
   config.yaml: |
     node_id: THIS_IS_THE_SNAPSHOT_ID_THAT_MATCHES_TO_XDS_CONTROLLER
     log_debug: true
-    listner_port: 8080
+    listener_port: 8080
+    prometheus_port: 8082
     max_concurrent_streams: 1000
     refresh_interval_in_sec: 5
     clusters:

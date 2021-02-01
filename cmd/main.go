@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"time"
+	"fmt"
+	"net/http"
 
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	controlplane "github.com/envoyproxy/go-control-plane/pkg/server/v3"
@@ -11,6 +12,33 @@ import (
 	"github.com/pradeepmvn/xds-controller/pkg/log"
 	"github.com/pradeepmvn/xds-controller/pkg/server"
 	"github.com/pradeepmvn/xds-controller/pkg/snapshot"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	// Prometheus Metrics plugged into callbac
+	activeStreams = promauto.NewGauge(prometheus.GaugeOpts{
+		Namespace: "xds_controller",
+		Subsystem: "grpc",
+		Name:      "active_streams",
+		Help:      "Active grpc streams to xds-controller",
+	})
+
+	streamReq = promauto.NewCounter(prometheus.CounterOpts{
+		Namespace: "xds_controller",
+		Subsystem: "grpc",
+		Name:      "stream_requests",
+		Help:      "Active grpc streams to xds-controller",
+	})
+
+	streamResp = promauto.NewCounter(prometheus.CounterOpts{
+		Namespace: "xds_controller",
+		Subsystem: "grpc",
+		Name:      "stream_responses",
+		Help:      "Active grpc streams to xds-controller",
+	})
 )
 
 // Main Entry point for xds-controller.
@@ -33,18 +61,14 @@ func main() {
 
 	// Configure  the xDS server
 	ctx := context.Background()
-	cb := &callback.Callbacks{}
+	cb := &callback.Callbacks{ActiveStrms: &activeStreams, ReqC: &streamReq, ResC: &streamResp}
 	srv := controlplane.NewServer(ctx, cache, cb)
 
-	// log metrics every sec on debug
-	if cfg.LogDebug {
-		go func(cb *callback.Callbacks) {
-			for {
-				cb.Log()
-				time.Sleep(1 * time.Second)
-			}
-		}(cb)
-	}
+	// Register Prometheus metrics handler.
+	http.Handle("/metrics", promhttp.Handler())
+	pm := fmt.Sprintf(":%d", cfg.PrometheusPort)
+	log.Info.Println("Starting Prometheus Metrics Agent at ", pm)
+	go http.ListenAndServe(pm, nil)
 
 	// Run xDS server
 	server.RunControlPlaneServer(ctx, srv, cfg)
