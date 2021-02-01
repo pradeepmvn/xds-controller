@@ -15,15 +15,19 @@ on:
 
 env:
   IMAGE_NAME: xds-controller
-
 jobs:
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
   test:
     runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
     steps:
       - uses: actions/checkout@v2
-
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: ./...
       - name: Run tests
         run: |
           if [ -f docker-compose.test.yml ]; then
