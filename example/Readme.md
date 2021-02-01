@@ -33,6 +33,15 @@ kubectl apply -f example/k8s/xds-controller.deployment.yaml -n xds-test
 kubectl apply -f example/k8s/server.deployment.yaml -n xds-test
 kubectl apply -f example/k8s/client.deployment.yaml -n xds-test
 ```
+### Metrics
+xds-controller exposes metrics via /metrics endpoint by default on 8082 port. Portforwarding can be used to hit localhost and see the metric details
+
+```
+// get pods 
+kubectl get pods -n xds-test
+kubectl port-forward {pod-name} 8082:8082 -n xds-test
+curl localhost:8082/metrics
+ ```
 
 ## Test
 Scale up and scaledown server pods and client should get notifications on changes and new pods should start getting

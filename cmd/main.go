@@ -30,14 +30,14 @@ var (
 		Namespace: "xds_controller",
 		Subsystem: "grpc",
 		Name:      "stream_requests",
-		Help:      "Active grpc streams to xds-controller",
+		Help:      "No.of requests via grpc streams to xds-controller",
 	})
 
 	streamResp = promauto.NewCounter(prometheus.CounterOpts{
 		Namespace: "xds_controller",
 		Subsystem: "grpc",
 		Name:      "stream_responses",
-		Help:      "Active grpc streams to xds-controller",
+		Help:      "No.of Reponses sent to clients by  xds-controller ",
 	})
 )
 

@@ -12,8 +12,9 @@ A general purpose control-plane to provide endpoints for grpc clients. Also well
 3. Ability to identity delta between snapshot and only send if there is a change.
 4. Plugged in to k8 watch and detect changes with k8 endpoints
 5. Mix and match resolvers for cluster. For ex: a node can have 1 dns resolver and 1 k8 resolver
+6. xDS transport protocol: Aggregated Discovery Service (ADS): SotW, aggregate stream for all resource types with grpc-streams
 
-## High level Overview
+## Solution Overview
 ![overview](img/xds-controller.png)
 
 ## What is xDS
@@ -62,6 +63,17 @@ export GRPC_XDS_BOOTSTRAP=/path/to/bootstrap.json
   "grpc_server_resource_name_id": "grpc/server"
 }
 ```
+## Instrumentation
+This project currently uses Promethus client for golang and exposes all standard metrics for golang client. This includes goroutines, gc collection times etc. Along with these blow custom metrics are defined and exported via Prometheus Agent. 
+
+| Metric | Type | Description |
+|---|---|---|
+| active_streams | Gauge | Active grpc stream connections to  xds-controller at a given point in time | 
+| stream_requests | Counter| No.of requests via grpc streams to xds-controller | 
+| stream_responses | Counter| No.of Reponses sent to clients by  xds-controller | 
+
+The [example](https://github.com/pradeepmvn/xds-controller/tree/main/example) refers multiple service ports by xds-controller which can be used by a prometheus server to scrape metrics.
+
 ## Configuration
 | Configuration | Details |
 |---|---|
@@ -95,12 +107,8 @@ Great projects that helped to shape it up. A big thanks for these repos. Some of
 - https://rancher.com/using-kubernetes-api-go-kubecon-2017-session-recap
 - https://github.com/tcfw/go-grpc-k8s-resolver
 
-## Todo
-- LRS
-- unit test cases
-- add server resolver, that registers themselves when they come and go to xds manager
-- ability to define multiple nodes
-
 ## FAQ
 1. Can I use load balancing with a clusterIp or a loadbaalncer ip for my service?
 - No. Cluster IP uses k8 internal proxy to loadbalance request across multiple pods. Enabling cluster ip will have once
+
+
