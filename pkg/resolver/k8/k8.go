@@ -9,9 +9,12 @@ import (
 	"github.com/pradeepmvn/xds-controller/pkg/config"
 	"github.com/pradeepmvn/xds-controller/pkg/log"
 	"github.com/pradeepmvn/xds-controller/pkg/resolver"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
 )
 
 const (
@@ -58,15 +61,25 @@ func (k *K8r) GetEndPoints() []string {
 // Watch triggers a bool chan on K8r to convey refresh to the caller
 // Blocks for updates
 func (k *K8r) Watch() {
-	var err error
-	k.wi, err = k.clientset.CoreV1().Endpoints(k.c.NameSpace).Watch(context.Background(), metav1.ListOptions{Watch: true})
-	if err != nil {
-		log.Error.Fatal("Unable to Eatch for Endpoint changes", err)
-	}
-	for range k.wi.ResultChan() {
-		log.Info.Printf("Change Detected in k8 for %s ", k.c.Address)
-		k.refresh <- true
-	}
+	epWl := cache.NewListWatchFromClient(k.clientset.CoreV1().RESTClient(), "endpoints", k.c.NameSpace, fields.Everything())
+	_, controller := cache.NewInformer(epWl, &v1.Endpoints{}, 0, cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			log.Debug.Println("Add Func: Change detected")
+			k.refresh <- true
+		},
+		DeleteFunc: func(obj interface{}) {
+			log.Debug.Println("Delete Func: Change detected")
+			k.refresh <- true
+		},
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			log.Debug.Println("Update Func: Change detected")
+			k.refresh <- true
+		},
+	})
+	// shouldnot close this struct..
+	stop := make(chan struct{})
+	controller.Run(stop)
+	log.Info.Printf("Exiting Watch Function. .... Not sure what happened for %v", k)
 }
 
 // Refresh tells when to refresh the data

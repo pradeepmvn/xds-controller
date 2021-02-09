@@ -64,11 +64,9 @@ data:
             {
               "type": "insecure"
             }
-          ]
+          ],
+          "server_features": ["xds_v3"]
         }
-      ],
-      "server_features": [
-        "xds_v3"
       ],
       "node": {
         "id": "THIS_IS_THE_SNAPSHOT_ID_THAT_MATCHES_TO_XDS_CONTROLLER"
