@@ -35,7 +35,6 @@ type snapshot struct {
 	clientset *kubernetes.Clientset
 	cfg       *config.ControllerConfig
 	cache     cache.SnapshotCache
-	resource  *resources
 	lstate    map[string]resolver.Resolver
 	m         sync.Mutex
 }
@@ -70,7 +69,7 @@ func NewSnapshot(cfg *config.ControllerConfig, cache cache.SnapshotCache) Snapsh
 			// create k8 config
 			config, err := rest.InClusterConfig()
 			if err != nil {
-				log.Error.Panic("fond a K8 resolver type., but unable to  get K8 CLuster Config", err)
+				log.Error.Panic("Found a K8 resolver type., but unable to  get K8 CLuster Config", err)
 			}
 			// creates the client set
 			cls, err = kubernetes.NewForConfig(config)
@@ -85,12 +84,6 @@ func NewSnapshot(cfg *config.ControllerConfig, cache cache.SnapshotCache) Snapsh
 		cache:     cache,
 		clientset: cls,
 		m:         sync.Mutex{},
-		resource: &resources{
-			endpoints: make([]types.Resource, 0),
-			clusters:  make([]types.Resource, 0),
-			routes:    make([]types.Resource, 0),
-			listeners: make([]types.Resource, 0),
-		},
 	}
 }
 
@@ -147,9 +140,6 @@ func (sn *snapshot) generate() {
 		lr.routes = append(lr.routes, createRoute(cl, clusterName))          // rds
 		lr.listeners = append(lr.listeners, createListener(cl))              // lds
 	}
-	// update resources
-	sn.resource = lr
-
 	// set snapshot
 	version := uuid.New()
 	xdsSn := cache.NewSnapshot(

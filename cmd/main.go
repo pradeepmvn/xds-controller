@@ -52,7 +52,7 @@ func main() {
 
 	// Create a cache
 	var l log.CLog
-	cache := cache.NewSnapshotCache(false, cache.IDHash{}, l)
+	cache := cache.NewSnapshotCache(true, cache.IDHash{}, l)
 
 	// Start the snapshot refresher..
 	sn := snapshot.NewSnapshot(cfg, cache)

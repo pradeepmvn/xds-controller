@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pradeepmvn/xds-controller/pkg/config"
@@ -21,6 +22,7 @@ type Dnsr struct {
 	c       *config.Cluster
 	latest  []string
 	stop    chan struct{}
+	mux     sync.Mutex
 }
 
 // Entry point to start resolving a new DNS
@@ -30,6 +32,8 @@ func New(c *config.Cluster) resolver.Resolver {
 
 // GetEndPoints Resolves to ip address with a dns_test
 func (d *Dnsr) GetEndPoints() []string {
+	d.mux.Lock()
+	defer d.mux.Unlock()
 	var netResolver = net.DefaultResolver
 	var err error
 	d.latest, err = netResolver.LookupHost(context.Background(), d.c.Address)
@@ -62,8 +66,8 @@ watcher:
 			}
 			// compare records to previous result
 			if (len(s) != len(d.latest)) ||
-				!strings.EqualFold(strings.Join(s, ""), strings.Join(d.latest, "")) {
 				//length is same. join the strings and see if they are equal to latest..
+				!strings.EqualFold(strings.Join(s, ""), strings.Join(d.latest, "")) {
 				log.Debug.Println("Found change..Trigger Refresh")
 				d.latest = s
 				d.refresh <- true
