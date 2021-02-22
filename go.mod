@@ -14,3 +14,9 @@ require (
 	k8s.io/apimachinery v0.20.1
 	k8s.io/client-go v0.20.1
 )
+
+replace (
+	github.com/nats-io/nats-server/v2 =>github.com/nats-io/nats-server/v2 v2.1.9
+	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
+	github.com/aws/aws-sdk-go => github.com/aws/aws-sdk-go v1.36.31
+)
