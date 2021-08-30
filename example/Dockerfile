@@ -1,4 +1,4 @@
-FROM golang:1.15.6 as build
+FROM golang:1.17 as build
 ARG TYPE=client
 WORKDIR /src
 COPY . .
