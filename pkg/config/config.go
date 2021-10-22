@@ -44,4 +44,5 @@ type Cluster struct {
 	NameSpace            string `yaml:"name_space"`
 	Port                 uint32 `yaml:"port"`
 	LbPolicy             string `yaml:"lb_policy"`
+	MaxRequests          uint32 `yaml:"max_requests"`
 }

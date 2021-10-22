@@ -30,11 +30,11 @@ spec:
             - containerPort: 8082
           resources:
             requests:
-              cpu: 1
-              memory: 1G
+              cpu: 50m
+              memory: 50Mi
             limits:
-              cpu: 1
-              memory: 1G
+              cpu: 100m
+              memory: 100Mi
           volumeMounts:
             - name: controller-config
               mountPath: /config
@@ -95,3 +95,4 @@ data:
         name_space: xds-test
         port: 8080
         lb_policy: ROUND_ROBIN
+        max_requests: 1024

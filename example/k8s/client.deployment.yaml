@@ -35,11 +35,11 @@ spec:
           imagePullPolicy: Never
           resources:
             requests:
-              cpu: 1
-              memory: 1G
+              cpu: 50m
+              memory: 50Mi
             limits:
-              cpu: 1
-              memory: 1G
+              cpu: 100m
+              memory: 100Mi
           volumeMounts:
             - name: xdsconfig
               mountPath: /etc/xds

@@ -53,7 +53,7 @@ func (cb *Callbacks) OnStreamRequest(a int64, d *discovery.DiscoveryRequest) err
 }
 
 // OnStreamResponse is called immediately prior to sending a response on a stream.
-func (cb *Callbacks) OnStreamResponse(a int64, req *discovery.DiscoveryRequest, d *discovery.DiscoveryResponse) {
+func (cb *Callbacks) OnStreamResponse(c context.Context, a int64, req *discovery.DiscoveryRequest, d *discovery.DiscoveryResponse) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	(*cb.ResC).Inc()
@@ -67,4 +67,25 @@ func (cb *Callbacks) OnFetchRequest(ctx context.Context, req *discovery.Discover
 
 // OnFetchResponse Marker Impl: No expecting Rest Client
 func (cb *Callbacks) OnFetchResponse(req *discovery.DiscoveryRequest, resp *discovery.DiscoveryResponse) {
+}
+
+// OnDeltaStreamOpen is called once an incremental xDS stream is open with a stream ID and the type URL (or "" for ADS).
+// Returning an error will end processing and close the stream. OnStreamClosed will still be called.
+func (cb *Callbacks) OnDeltaStreamOpen(context.Context, int64, string) error {
+	return nil
+}
+
+// OnDeltaStreamClosed is called immediately prior to closing an xDS stream with a stream ID.
+func (cb *Callbacks) OnDeltaStreamClosed(int64) {
+
+}
+
+// OnStreamDeltaRequest is called once a request is received on a stream.
+// Returning an error will end processing and close the stream. OnStreamClosed will still be called.
+func (cb *Callbacks) OnStreamDeltaRequest(int64, *discovery.DeltaDiscoveryRequest) error {
+	return nil
+}
+
+// OnStreamDelatResponse is called immediately prior to sending a response on a stream.
+func (cb *Callbacks) OnStreamDeltaResponse(int64, *discovery.DeltaDiscoveryRequest, *discovery.DeltaDiscoveryResponse) {
 }

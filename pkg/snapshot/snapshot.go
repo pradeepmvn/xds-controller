@@ -1,17 +1,23 @@
 package snapshot
 
 import (
+	"context"
+	"fmt"
 	"strings"
 	"sync"
 
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
+	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	"github.com/pradeepmvn/xds-controller/pkg/config"
 	"github.com/pradeepmvn/xds-controller/pkg/log"
 	"github.com/pradeepmvn/xds-controller/pkg/resolver"
 	"github.com/pradeepmvn/xds-controller/pkg/resolver/dns"
 	"github.com/pradeepmvn/xds-controller/pkg/resolver/k8"
+	"google.golang.org/protobuf/types/known/anypb"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -142,19 +148,22 @@ func (sn *snapshot) generate() {
 	}
 	// set snapshot
 	version := uuid.New()
-	xdsSn := cache.NewSnapshot(
+	xdsSn, err := cache.NewSnapshot(
 		version.String(),
-		lr.endpoints,       // endpoints
-		lr.clusters,        //cds
-		lr.routes,          //rds
-		lr.listeners,       //lds,
-		[]types.Resource{}, // runtimes
-		[]types.Resource{}, // secrets
+		map[resource.Type][]types.Resource{
+			resource.ClusterType:  lr.clusters,  //cds,
+			resource.RouteType:    lr.routes,    //rds,
+			resource.ListenerType: lr.listeners, //lds,
+			resource.EndpointType: lr.endpoints, // endpoints
+		},
 	)
+	if err != nil {
+		log.Error.Panic("Unable To Create New Snapshot.. Panicing !!", err)
+	}
 	if err := xdsSn.Consistent(); err != nil {
 		log.Error.Panic("Snapshot inconsistent.. Panicing !!", err)
 	}
-	if err := sn.cache.SetSnapshot(sn.cfg.NodeId, xdsSn); err != nil {
+	if err := sn.cache.SetSnapshot(context.Background(), sn.cfg.NodeId, xdsSn); err != nil {
 		log.Error.Println("Failed to Set Snapshot to cache. ", xdsSn)
 		log.Error.Panic("Faile with error", err)
 	}
@@ -168,4 +177,14 @@ func (sn *snapshot) Close() {
 	for _, r := range sn.lstate {
 		r.Close()
 	}
+}
+
+// MarshalAny is a convenience function to marshal protobuf messages into any
+// protos. It will panic if the marshaling fails.
+func MarshalAny(m proto.Message) *anypb.Any {
+	a, err := ptypes.MarshalAny(m)
+	if err != nil {
+		panic(fmt.Sprintf("ptypes.MarshalAny(%+v) failed: %v", m, err))
+	}
+	return a
 }
