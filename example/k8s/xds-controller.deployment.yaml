@@ -95,3 +95,4 @@ data:
         name_space: xds-test
         port: 8080
         lb_policy: ROUND_ROBIN
+        max_requests: 1024

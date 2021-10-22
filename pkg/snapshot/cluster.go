@@ -17,8 +17,10 @@ func createCluster(cl *config.Cluster, clusterName string) types.Resource {
 		CircuitBreakers: &cluster.CircuitBreakers{
 			Thresholds: []*cluster.CircuitBreakers_Thresholds{
 				{
-					Priority:    core.RoutingPriority_DEFAULT,
-					MaxRequests: &wrapperspb.UInt32Value{Value: cl.MaxRequests},
+					Priority: core.RoutingPriority_DEFAULT,
+					MaxRequests: &wrapperspb.UInt32Value{
+						Value: cl.MaxRequests,
+					},
 				},
 			},
 		},

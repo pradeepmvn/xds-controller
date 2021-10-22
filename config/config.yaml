@@ -27,5 +27,5 @@ clusters:
     # default is round robin. envoy lb_policy values
     lb_policy: ROUND_ROBIN
     # Circuit Breaker Configuration for this Cluster
-    #The maximum number of requests that can be outstanding to all hosts in this cluster at any given time
+    # The maximum number of requests that can be outstanding to all hosts in this cluster at any given time
     max_requests: 1024
