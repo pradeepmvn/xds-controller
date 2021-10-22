@@ -2,18 +2,22 @@ package snapshot
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	"github.com/pradeepmvn/xds-controller/pkg/config"
 	"github.com/pradeepmvn/xds-controller/pkg/log"
 	"github.com/pradeepmvn/xds-controller/pkg/resolver"
 	"github.com/pradeepmvn/xds-controller/pkg/resolver/dns"
 	"github.com/pradeepmvn/xds-controller/pkg/resolver/k8"
+	"google.golang.org/protobuf/types/known/anypb"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -173,4 +177,14 @@ func (sn *snapshot) Close() {
 	for _, r := range sn.lstate {
 		r.Close()
 	}
+}
+
+// MarshalAny is a convenience function to marshal protobuf messages into any
+// protos. It will panic if the marshaling fails.
+func MarshalAny(m proto.Message) *anypb.Any {
+	a, err := ptypes.MarshalAny(m)
+	if err != nil {
+		panic(fmt.Sprintf("ptypes.MarshalAny(%+v) failed: %v", m, err))
+	}
+	return a
 }

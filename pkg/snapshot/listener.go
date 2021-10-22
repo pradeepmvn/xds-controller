@@ -2,14 +2,12 @@ package snapshot
 
 import (
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
-	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
-
 	listener "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
+	v3routerpb "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/router/v3"
 	hcm "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
-	"github.com/golang/protobuf/ptypes"
+	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/pradeepmvn/xds-controller/pkg/config"
-	"github.com/pradeepmvn/xds-controller/pkg/log"
 )
 
 // Listener resourcetype in envoy configuration.
@@ -27,12 +25,14 @@ func createListener(c *config.Cluster) types.Resource {
 				},
 			},
 		},
+		HttpFilters: []*hcm.HttpFilter{{
+			Name: "router_filter",
+			ConfigType: &hcm.HttpFilter_TypedConfig{
+				TypedConfig: MarshalAny(&v3routerpb.Router{}),
+			},
+		}},
 	}
-	pbst, err := ptypes.MarshalAny(cm)
-	if err != nil {
-		log.Error.Panic("Unable to Marshal Connection Manager ", err)
-	}
-
+	pbst := MarshalAny(cm)
 	return types.Resource(&listener.Listener{
 		Name: c.Name + listenerSuffix,
 		ApiListener: &listener.ApiListener{
@@ -50,6 +50,7 @@ func createListener(c *config.Cluster) types.Resource {
 			},
 		},
 		FilterChains: []*listener.FilterChain{{
+			Name: "filter-chain-1",
 			Filters: []*listener.Filter{{
 				Name: wellknown.HTTPConnectionManager,
 				ConfigType: &listener.Filter_TypedConfig{
