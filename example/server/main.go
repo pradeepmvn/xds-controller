@@ -12,6 +12,8 @@ import (
 	"github.com/Pallinder/sillyname-go"
 	personpb "github.com/pradeepmvn/xds-controller/example/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Name server reponds with random person name
@@ -42,6 +44,10 @@ func main() {
 
 func (s *server) GetDetails(ctx context.Context, in *personpb.PersonRequest) (*personpb.PersonResponse, error) {
 	log.Println("Served Request from Server: ", serverID)
+	// randomly send unavailable
+	if time.Now().Unix()%3 == 0 {
+		return nil, status.Errorf(codes.Unavailable, "Triggering Unavailable for retry check")
+	}
 	return &personpb.PersonResponse{Name: sillyname.GenerateStupidName(), Id: serverID}, nil
 }
 

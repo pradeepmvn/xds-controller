@@ -30,6 +30,7 @@ func main() {
 	for {
 		r, err := client.GetDetails(context.Background(), &personpb.PersonRequest{})
 		if err != nil {
+			// Will crash container when Unavailable is sent from server
 			log.Fatalf("could not get details: %v", err)
 		}
 		log.Printf("Got Name: %s from Server: %d", r.GetName(), r.GetId())
