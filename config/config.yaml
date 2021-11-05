@@ -29,3 +29,14 @@ clusters:
     # Circuit Breaker Configuration for this Cluster
     # The maximum number of requests that can be outstanding to all hosts in this cluster at any given time
     max_requests: 1024
+    retry:
+      enabled: true
+      # list of grpc error codes that the client should retry on. Below ones are the only suppored codes.
+      retry_on: "unavailable,resource-exhausted,internal,deadline-exceeded,cancelled"
+      #  maximum num of retries for this cluster.
+      num_retries: 3
+      # Backoff initial interval
+      backoff_interval_in_sec: 1
+      # maximum back off time.
+      backoff_max_interval_in_secs: 5
+

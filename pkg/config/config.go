@@ -45,4 +45,14 @@ type Cluster struct {
 	Port                 uint32 `yaml:"port"`
 	LbPolicy             string `yaml:"lb_policy"`
 	MaxRequests          uint32 `yaml:"max_requests"`
+	Retry                Retry  `yaml:"retry"`
+}
+
+// Retry Configuration specific to a cluster
+type Retry struct {
+	Enabled                 bool   `yaml:"enabled"`
+	RetryOn                 string `yaml:"retry_on"`
+	NumRetries              uint32 `yaml:"num_retries"`
+	BackoffIntervalInSec    uint32 `yaml:"backoff_interval_in_sec"`
+	BackoffMaxIntervalInSec uint32 `yaml:"backoff_max_interval_in_sec"`
 }
