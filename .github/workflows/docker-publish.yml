@@ -27,7 +27,7 @@ jobs:
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
-          args: ./
+          args: exclude=example ./...
       - name: Run tests
         run: |
           if [ -f docker-compose.test.yml ]; then
