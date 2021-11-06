@@ -98,9 +98,9 @@ data:
         port: 8080
         lb_policy: ROUND_ROBIN
         max_requests: 1024
-    retry:
-      enabled: true
-      retry_on: "unavailable,resource-exhausted,internal,deadline-exceeded,cancelled"
-      num_retries: 5
-      backoff_interval_in_sec: 1
-      backoff_max_interval_in_sec: 5
+        retry:
+          enabled: true
+          retry_on: "unavailable,resource-exhausted,internal,deadline-exceeded,cancelled"
+          num_retries: 5
+          backoff_interval_in_sec: 1
+          backoff_max_interval_in_sec: 5
