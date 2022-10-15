@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	controlplane "github.com/envoyproxy/go-control-plane/pkg/server/v3"
@@ -59,17 +60,21 @@ func main() {
 	defer sn.Close()
 	go sn.StartRefresher()
 
-	// Configure  the xDS server
-	ctx := context.Background()
-	cb := &callback.Callbacks{ActiveStrms: &activeStreams, ReqC: &streamReq, ResC: &streamResp}
-	srv := controlplane.NewServer(ctx, cache, cb)
-
 	// Register Prometheus metrics handler.
 	http.Handle("/metrics", promhttp.Handler())
 	pm := fmt.Sprintf(":%d", cfg.PrometheusPort)
 	log.Info.Println("Starting Prometheus Metrics Agent at ", pm)
-	go http.ListenAndServe(pm, nil)
+	promServer := &http.Server{
+		Addr:              pm,
+		ReadHeaderTimeout: 3 * time.Second,
+	}
+	go promServer.ListenAndServe()
+	//-----------------------
 
+	// Configure  the xDS server
+	ctx := context.Background()
+	cb := &callback.Callbacks{ActiveStrms: &activeStreams, ReqC: &streamReq, ResC: &streamResp}
+	srv := controlplane.NewServer(ctx, cache, cb)
 	// Run xDS server
 	server.RunControlPlaneServer(ctx, srv, cfg)
 }
