@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "golang.go",
+    "ms-azuretools.vscode-docker",
+    "vscode-icons-team.vscode-icons",
+    "xaver.clang-format",
+    "EditorConfig.EditorConfig",
+    "Equinusocio.vsc-material-theme",
+    "hediet.vscode-drawio",
+    "github.github-vscode-theme",
+  ]
+}

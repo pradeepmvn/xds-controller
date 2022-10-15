@@ -1,0 +1,82 @@
+{
+  "window.zoomLevel": 0,
+  "explorer.sortOrder": "type",
+  "explorer.enableDragAndDrop": true,
+  "explorer.": true,
+  // scm
+  "scm.defaultViewMode": "tree",
+  // Editor
+  "editor.autoIndent": "full",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "editor.cursorBlinking": "blink",
+  "editor.cursorSmoothCaretAnimation": true,
+  "editor.cursorStyle": "line",
+  "editor.fontSize": 13,
+  "editor.fontFamily": "FiraCode-Retina, SourceCodePro-Regular, Menlo",
+  "editor.fontLigatures": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": false,
+  "editor.formatOnSave": true,
+  "editor.letterSpacing": 0.5,
+  "editor.lineHeight": 25,
+  "editor.minimap.enabled": false,
+  "editor.renderWhitespace": "none",
+  "editor.tabCompletion": "on",
+  "editor.tabSize": 2,
+  "editor.wordWrap": "off",
+  // "terminal.integrated.fontSize": 16,
+  // Workbench
+  "workbench.editor.limit.enabled": true,
+  "workbench.editor.limit.value": 8,
+  "workbench.tree.expandMode": "doubleClick",
+  "workbench.tree.indent": 20,
+  "workbench.colorCustomizations": {
+    "tree.indentGuidesStroke": "#5a5861"
+  },
+  "workbench.editor.highlightModifiedTabs": true,
+  // File settings
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/*.js.map": {
+      "when": "$(basename)"
+    }
+  },
+  "files.associations": {
+    "Makefile*": "makefile"
+  },
+  // "files.hotExit": "onExit",
+  "files.defaultLanguage": "go",
+  "files.trimTrailingWhitespace": true,
+  // Peacock Settings
+  "peacock.color": "#5dc9e2",
+  // GoLang
+  "go.useLanguageServer": true,
+  "[go]": {
+    "editor.snippetSuggestions": "none",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true,
+    }
+  },
+  "gopls": {
+    "usePlaceholders": true, // add parameter placeholders when completing a function
+    // Experimental settings
+    "completeUnimported": true, // autocomplete unimported packages
+    "deepCompletion": true, // enable deep completion
+  },
+  "go.languageServerFlags": [
+    "-rpc.trace", // for more detailed debug logging
+    "serve",
+    "--debug=localhost:6060", // to investigate memory usage, see profiles
+  ],
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": [
+    "--fast",
+    "--config=.github/linters/.golangci.yml"
+  ]
+}
