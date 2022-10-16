@@ -32,6 +32,7 @@ docker build -t xds.example/server -f example/Dockerfile --build-arg TYPE=server
 kubectl create namespace xds-test
 kubectl apply -f example/k8s/xds-controller.deployment.yaml -n xds-test
 kubectl apply -f example/k8s/server.deployment.yaml -n xds-test
+kubectl apply -f example/k8s/server.b.deployment.yaml -n xds-test
 kubectl apply -f example/k8s/client.deployment.yaml -n xds-test
 ```
 ### Metrics

@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server-deployment
+  name: server-b-deployment
   labels:
-    app: server
+    app: server-b
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: server
+      app: server-b
   template:
     metadata:
       labels:
-        app: server
+        app: server-b
     spec:
       containers:
-        - name: server
+        - name: server-b
           env:
             - name: SERVER_PORT
               value: "8080"
             - name: RANDOM_NUM_LENGTH
-              value: "10"
+              value: "2"
           image: xds.example/server:latest
           imagePullPolicy: Never
           ports:
@@ -39,8 +39,8 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    note: server
-  name: server
+    note: server-b
+  name: server-b
 spec:
   ports:
     - name: grpc-port
@@ -48,5 +48,5 @@ spec:
       protocol: TCP
       targetPort: grpc-port
   selector:
-    app: server
+    app: server-b
   clusterIP: None
