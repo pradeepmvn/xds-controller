@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy-deployment
+  labels:
+    app: envoy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: envoy
+  template:
+    metadata:
+      labels:
+        app: envoy
+    spec:
+      containers:
+        - name: envoy
+          command:
+            - envoy
+          args:
+            - "-c /etc/envoy/envoy.yaml"
+            - "--log-level info"
+            - "--log-format %L. envoy]%v"
+            - "--log-format-escaped"
+            - "--enable-fine-grain-logging"
+            - "--component-log-level upstream:debug,connection:debug"
+          image: envoyproxy/envoy:v1.19.0
+          imagePullPolicy: Never
+          # env:
+          #   - name: "GRPC_GO_LOG_SEVERITY_LEVEL"
+          #     value: info
+          ports:
+            - name: http
+              containerPort: 10000
+          resources:
+            requests:
+              cpu: 1
+              memory: 1G
+            limits:
+              cpu: 1
+              memory: 1G
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /etc/envoy
+      volumes:
+        - name: envoy-config
+          configMap:
+            name: envoy-config-map-cewwcs4rfgfy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    note: envoy
+  name: envoy
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 10000
+    - name: admin-http
+      protocol: TCP
+      port: 8081
+      targetPort: 8090
+  selector:
+    app: envoy
+  clusterIP: None
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    note: envoy-config-map
+  name: envoy-config-map-cewwcs4rfgfy
+data:
+  envoy.yaml: |
+    node:
+      id: THIS_IS_THE_SNAPSHOT_ID_THAT_MATCHES_TO_XDS_CONTROLLER
+      cluster: all_services
+    dynamic_resources:
+      lds_config:
+        resource_api_version: V3
+        ads: {}
+      cds_config:
+        resource_api_version: V3
+        ads: {}
+      ads_config:
+        # type of request
+        api_type: GRPC
+        transport_api_version: V3
+        grpc_services:
+          - envoy_grpc:
+              cluster_name: xds_cluster
+    static_resources:
+      clusters:
+      - name: xds_cluster
+        connect_timeout: 0.25s
+        type: STRICT_DNS
+        lb_policy: ROUND_ROBIN
+        typed_extension_protocol_options:
+          envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+            "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+            explicit_http_config:
+              http2_protocol_options:
+                # Configure an HTTP/2 keep-alive to detect connection issues and reconnect
+                # to the admin server if the connection is no longer responsive.
+                connection_keepalive:
+                  interval: 30s
+                  timeout: 5s
+        load_assignment:
+          cluster_name: xds_cluster
+          endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: xds-controller.xds-test.svc.cluster.local
+                    port_value: 8080
+    admin:
+      access_log_path: "/dev/stdout"
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8090

@@ -53,7 +53,9 @@ func main() {
 
 	// Create a cache
 	var l log.CLog
-	cache := cache.NewSnapshotCache(true, cache.IDHash{}, l)
+	// ADS flag forces a delay in responding to streaming requests until all resources are explicitly named in the request.
+	// Making it to false to make it convinient for one control plane to send partial responses to clients.
+	cache := cache.NewSnapshotCache(false, cache.IDHash{}, l)
 
 	// Start the snapshot refresher..
 	sn := snapshot.NewSnapshot(cfg, cache)

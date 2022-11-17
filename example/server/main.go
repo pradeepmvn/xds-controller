@@ -29,11 +29,15 @@ var (
 func main() {
 	// get Env variables
 	serverPort := getEnv("SERVER_PORT", "5432")
+	randLength := getEnv("RANDOM_NUM_LENGTH", "10")
 	lis, err := net.Listen("tcp", ":"+serverPort)
+
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	serverID = randNum(3)
+	n, _ := strconv.Atoi(randLength)
+
+	serverID = randNum(n)
 	s := grpc.NewServer()
 	personpb.RegisterPersonServer(s, &server{})
 	log.Println(" Server Started !!")
@@ -59,7 +63,7 @@ func getEnv(key, defaultVal string) string {
 	return v
 }
 
-// 9 for ssn
+// generates a rand number of specified length
 func randNum(length int) int32 {
 	var b string
 	for i := 0; i < length; i++ {
