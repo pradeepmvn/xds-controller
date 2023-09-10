@@ -3,9 +3,11 @@ package callback
 
 import (
 	"context"
-	"github.com/pradeepmvn/xds-controller/pkg/log"
 	"sync"
 
+	"github.com/pradeepmvn/xds-controller/pkg/log"
+
+	corev3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -35,7 +37,7 @@ func (cb *Callbacks) OnStreamOpen(_ context.Context, id int64, typ string) error
 }
 
 // OnStreamClosed is called immediately prior to closing an xDS stream with a stream ID.
-func (cb *Callbacks) OnStreamClosed(id int64) {
+func (cb *Callbacks) OnStreamClosed(id int64, n *corev3.Node) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	(*cb.ActiveStrms).Dec()
@@ -76,7 +78,7 @@ func (cb *Callbacks) OnDeltaStreamOpen(context.Context, int64, string) error {
 }
 
 // OnDeltaStreamClosed is called immediately prior to closing an xDS stream with a stream ID.
-func (cb *Callbacks) OnDeltaStreamClosed(int64) {
+func (cb *Callbacks) OnDeltaStreamClosed(int64,*corev3.Node) {
 
 }
 

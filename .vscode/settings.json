@@ -11,7 +11,7 @@
     "source.organizeImports": true
   },
   "editor.cursorBlinking": "blink",
-  "editor.cursorSmoothCaretAnimation": true,
+  "editor.cursorSmoothCaretAnimation": "on",
   "editor.cursorStyle": "line",
   "editor.fontSize": 13,
   "editor.fontFamily": "FiraCode-Retina, SourceCodePro-Regular, Menlo",
